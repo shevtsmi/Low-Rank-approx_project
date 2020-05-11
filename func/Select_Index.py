@@ -1,10 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Fri May  8 14:52:15 2020
 
-@author: zyl
-"""
 
 """
 выбирает подматрицу по индексному множеству
