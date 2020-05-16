@@ -5,6 +5,7 @@
 
 import numpy as np
 import math
+import pandas
 import os
 os.getcwd()
 
@@ -15,7 +16,7 @@ from func.Bulge_chasing_upper import Bulge_chasing_upper
 # Проверка:
 
 
-n = 4      # размерность задачи
+n = 7      # размерность задачи
 
 s = np.zeros(n)   # вектор [0 ... (n - 1)], задающий диагональную матрицу Sigma
 
@@ -25,11 +26,21 @@ x = np.zeros(n)   # вектор, относительно которого пр
 for i in range(n):
     s[i] = i + 1.0
     x[i] = i + 1
+
+
+
+# # проверка поведения с нулевыми столбцами
+# s[n - 1] = 0
+# s[n - 2] = 0
+
+
 Sigma = np.diag(s)
 
 Q, W = Bulge_chasing_lower(s, x, n)
 
-print(Q.dot(Sigma.dot(W)))        # смотрим на вывод, убеждаемся, что верхняя треугольная
+print(pandas.DataFrame(Sigma))
+print("=================")
+print(pandas.DataFrame(Q.dot(Sigma.dot(W)))   )     # смотрим на вывод, убеждаемся, что верхняя треугольная
 print("\n")
 print("Exact norm(z) = {} \n".format(np.linalg.norm(x)))     # это настоящая норма вектора x
 

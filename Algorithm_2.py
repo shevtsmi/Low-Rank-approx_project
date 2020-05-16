@@ -10,24 +10,10 @@ os.getcwd()
 from func.Bulge_chasing_lower import Bulge_chasing_lower
 from func.Bulge_chasing_upper import Bulge_chasing_upper
 from func.Select_Index import Select_Columns, Select_Rows, Select_Ind
-
-def GetCoFromEigen(eigen):
-    n = len(eigen)
-    ans = []
-    S = np.zeros((n, n+1), dtype = np.complex)
-    S[0,1] = eigen[0]
-    for i in range(n-1):
-        S[i, 0] = 1
-    for i in range(1, n):
-        for j in range(1, i+2):
-            S[i, j] = S[i-1, j] + eigen[i]*S[i-1,j-1]
-    ans.append(complex(1.0,0))
-    for i in range(1,n+1):
-        ans.append(S[n-1, i])
-    return ans
-
+from func.Summation_Alg import GetCoFromEigen
 
 # A in R^{m x n};    select any 1 <= k < m
+
 def GetColumnSubset(A, k):
     S = []
     B = A.copy()
@@ -56,8 +42,8 @@ def GetColumnSubset(A, k):
             
             eigen = np.diag(sing) @ sing
             coeff = GetCoFromEigen(eigen)
-            up = coeff[m-k+t- 1]
-            down = coeff[m-k+t]
+            up   = coeff[min(m,n) - k + t - 1]
+            down = coeff[min(m,n) - k + t]
             ratio = up/down
             if ratio < minRatio:
                 minRatio = ratio
