@@ -16,9 +16,10 @@ def GetCoFromEigen(eigen):
     for i in range(1, n):
         for j in range(1, i+2):
             S[i, j] = S[i-1, j] + eigen[i]*S[i-1,j-1]
-    ans.append(complex(1.0,0))
     for i in range(1,n+1):
         ans.append(S[n-1, i])
+        
+    ans.append(complex(1.0,0))
     return ans
 
 
