@@ -29,11 +29,11 @@ def Algorithm_3(A, k):
     B = A.copy()
     I = []
     J = []
-    minRatio = math.inf
+
     i_t = -1
     j_t = -1
     for t in range(k):
-        
+        minRatio = math.inf
         U, sig, V = np.linalg.svd(B, full_matrices=False)
         Sigma = np.diag(sig)
         
@@ -72,7 +72,10 @@ def Algorithm_3(A, k):
                 coeff = GetCoFromEigen(eigen)
                 up   = coeff[min(m,n) - k + t - 1]
                 down = coeff[min(m,n) - k + t]
-                r = up/down
+                if down == 0:
+                    r = math.inf
+                else:
+                    r = up/down
                 
                 
                 if(r < minRatio and (i not in I) and (j not in J) and B[i][j] != 0):
@@ -99,8 +102,3 @@ def Algorithm_3(A, k):
     U = np.linalg.pinv(C) @ A @ np.linalg.pinv(R)
     
     return C, U, R, I, J
-
-
-
-
-

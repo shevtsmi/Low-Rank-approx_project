@@ -19,14 +19,18 @@ def GetColumnSubset(A, k):
     B = A.copy()
     n = A.shape[1]
     m = A.shape[0]
+    i_t = -1
     #print("M, n = ", m, n)
     for t in range(k):
         U, sig, til = np.linalg.svd(B, full_matrices = False)
         minRatio = math.inf
         for i in range(n):
             b = []
+
             for l in range(m):
                 b.append(B[l,i])
+            if np.linalg.norm(b) == 0:
+                continue
             q = U.T @ b / np.linalg.norm(b)
             Q, W = Bulge_chasing_lower(sig, q, len(sig))
             temp = Q
@@ -41,10 +45,14 @@ def GetColumnSubset(A, k):
             
             
             eigen = np.diag(sing) @ sing
+            #print(eigen)
             coeff = GetCoFromEigen(eigen)
             up   = coeff[min(m,n) - k + t - 1]
             down = coeff[min(m,n) - k + t]
-            ratio = up/down
+            if down == 0:
+                ratio = math.inf
+            else:
+                ratio = up/down
             if ratio < minRatio:
                 minRatio = ratio
                 i_t = i
