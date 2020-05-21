@@ -56,9 +56,9 @@ def Check_Best_CUR(A, k):
             
     return ans, columns, rows
             
-m = 10
-n = 8
-k = 2
+m = 60
+n = 80
+k = 20
 
 A = np.random.rand(m, n) * 10
 
@@ -67,14 +67,14 @@ A = np.random.rand(m, n) * 10
 C, U, R, our_col, our_row = Algorithm_3(A, k) 
 
 our_ans = np.linalg.norm(A - C @ U @ R) 
-true_ans, true_col, true_row = Check_Best_CUR(A, k)
+#true_ans, true_col, true_row = Check_Best_CUR(A, k)
 
 
-print("our answer : {} \ntrue answer : {}\n".format(our_ans, true_ans))
+# print("our answer : {} \ntrue answer : {}\n".format(our_ans, true_ans))
 
-print("True sets: ")
-print("Cols :\n {}\n".format(true_col))
-print("Rows :\n {}\n".format(true_row))
+# print("True sets: ")
+# print("Cols :\n {}\n".format(true_col))
+# print("Rows :\n {}\n".format(true_row))
 
 print("Our sets: ")
 print("Cols :\n {}\n".format(our_col))

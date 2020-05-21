@@ -5,9 +5,11 @@
 import numpy as np
 import math
 import os
+import pandas
 os.getcwd()
 
 from func.Givens_Rotation import formrot, Givens_left, Givens_right
+from func.Rotator import Rotator
 
 # Input:
 #   b -- вектор диагональной матрицы (Sigma = Diag(b))
@@ -27,14 +29,17 @@ from func.Givens_Rotation import formrot, Givens_left, Givens_right
 #  Q  W  Такие, что : Q * Sigma * W -- нижняя треугольная бидиагональная, W^T * z = || z || * e_1
 
 def Bulge_chasing_lower(b_, z_, n):
+    #print("b = \n{}\n".format(b_))
+    #test_b = b_.copy()
     b = b_.copy()
     z = z_.copy()
     temp = 0
     g  = np.zeros(n - 1)
     xi = np.zeros(n - 1)
     l  = np.zeros(n - 2)
-    Q = np.eye(n)
-    W = np.eye(n)
+    #Q = np.eye(n)
+    #W = np.eye(n)
+    Giv = Rotator()
     # start
     #---------------------------------
     
@@ -47,7 +52,12 @@ def Bulge_chasing_lower(b_, z_, n):
         xi[n - 2] = -s * b[n - 1]
         b[n - 1] = c * b[n - 1]
         
-        W = Givens_right(c, s, n, n - 2, n - 1) 
+        #W = Givens_right(c, s, n, n - 2, n - 1) 
+        Giv.update_W(c, s, n - 2, n - 1)
+        
+        #print(" c = {};  s = {}\n".format(c, s))
+        #Giv.display()
+    
 
         c, s = formrot(b[n - 1], g[n - 2])
         s = -s
@@ -59,7 +69,11 @@ def Bulge_chasing_lower(b_, z_, n):
         g[n - 2] = 0 #c * temp - s * b[n - 1]   # === 0
         b[n - 1] = s * temp + c * b[n - 1]
         
-        Q = Givens_left(c, s, n, n - 2, n - 1)
+        #Q = Givens_left(c, s, n, n - 2, n - 1)
+        Giv.update_Q(c, s, n - 2, n - 1)
+        
+        #============================================================================================================
+        
 
     #iterations
     
@@ -80,7 +94,14 @@ def Bulge_chasing_lower(b_, z_, n):
         l[i - 1] = -s * xi[i]
         xi[i] = c * xi[i]
         
-        W = W.dot(Givens_right(c, s, n, i - 1, i))
+        #W = W.dot(Givens_right(c, s, n, i - 1, i))
+        Giv.update_W(c, s,  i - 1, i)
+        # print("check {} =================== ".format(i))
+        # Giv.display()
+        
+        # print("Q * A =\n{}\n\nGiv : \n\n{}\n".format(pandas.DataFrame(Q @ ( np.diag(test_b) @ W)), \
+        #                                               pandas.DataFrame(Giv.apply(np.diag(test_b)))))
+        # print("check =================== ")
         
         
         if(g[i - 1] != 0):
@@ -95,7 +116,15 @@ def Bulge_chasing_lower(b_, z_, n):
             g[i - 1] = 0  #c * temp - s * b[i]    # === 0
             b[i] = s * temp + c * b[i]
     
-            Q = Givens_left(c, s, n, i - 1, i).dot(Q)
+            #Q = Givens_left(c, s, n, i - 1, i).dot(Q)
+            Giv.update_Q(c, s,  i - 1, i)
+            
+            # print("check {} if =================== ".format(i))
+            # Giv.display()
+            # print("Q * A =\n{}\n\nGiv : \n\n{}\n".format(pandas.DataFrame(Q @ ( np.diag(test_b) @ W)), \
+            #                                           pandas.DataFrame(Giv.apply(np.diag(test_b)))))
+            # print("check =================== ")
+            
  
         for j in range(i, n - 2):
             
@@ -113,7 +142,8 @@ def Bulge_chasing_lower(b_, z_, n):
                 l[j - 1] = 0  #s * xi[j - 1] + c * temp  # === 0
                 xi[j - 1] = c * xi[j - 1] - s * temp
     
-                Q = Givens_left(c, s, n, j, j + 1).dot(Q)
+                #Q = Givens_left(c, s, n, j, j + 1).dot(Q)
+                Giv.update_Q(c, s,  j, j + 1)
             
                 # second upper reduction step
                 c, s = formrot(b[j], g[j])
@@ -129,7 +159,8 @@ def Bulge_chasing_lower(b_, z_, n):
                 l[j] = -s * xi[j + 1]
                 xi[j + 1] = c * xi[j + 1]
                 
-                W = W.dot(Givens_right(c, s, n, j, j + 1))
+                #W = W.dot(Givens_right(c, s, n, j, j + 1))
+                Giv.update_W(c, s,  j, j + 1)
         
         if(l[n - 2 - 1] != 0):
             c, s = formrot(xi[n - 2 -1], l[n - 2 - 1])
@@ -145,7 +176,8 @@ def Bulge_chasing_lower(b_, z_, n):
             l[n - 2 - 1] = 0  #s * xi[j - 1] + c * temp  # === 0
             xi[n - 2 - 1] = c * xi[n - 2 - 1] - s * temp
     
-            Q = Givens_left(c, s, n, n - 2, n - 2 + 1).dot(Q)
+            #Q = Givens_left(c, s, n, n - 2, n - 2 + 1).dot(Q)
+            Giv.update_Q(c, s,  n - 2, n - 2 + 1)
             
             c, s = formrot(b[n - 2], g[n - 2])
             temp = b[n - 2]
@@ -156,9 +188,10 @@ def Bulge_chasing_lower(b_, z_, n):
             xi[n - 2] = c * temp - s * b[ n - 1]
             b[n - 1] = s * temp + c * b[n - 1]
     
-            W = W.dot(Givens_right(c, s, n, n - 2, n - 1))
+            #W = W.dot(Givens_right(c, s, n, n - 2, n - 1))
+            Giv.update_W(c, s,  n - 2, n - 1)
 
-    return Q, W
+    return Giv    #Q, W, Giv
 
 
 

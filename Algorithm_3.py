@@ -40,7 +40,8 @@ def Algorithm_3(A, k):
         for i in range(m):    # 0, ... , (m - 1)
             for j in range(n):  # 0, ... , (n - 1)
             
-                x = Sigma.dot(V[j, :].T)
+                print("{}/{} ; {}/{} ; {}/{}".format(t, k, i, m, j, n))
+                x = Sigma.dot(V[:, j])
                     # check if B(i, j) == 0
                 
                 if(B[i][j] == 0):
@@ -49,22 +50,16 @@ def Algorithm_3(A, k):
                 y = 1/B[i][j] * Sigma.dot(U[i, :].T)
                 
 
-                Q, W = Bulge_chasing_lower(sig, x, len(sig))
-                temp = Q
-                Q = W.T
-                W = temp.T
+                Giv_1 = Bulge_chasing_lower(sig, x, len(sig))
                 
-                D_1 = Q.dot((Sigma - x.dot(y.T)).dot(W))
+                D_1 = Giv_1.apply_T(Sigma - np.outer(x, y))
                 
-                __, D_2, __ = Tridiagonal_chase(D_1)
+                D_2 = Tridiagonal_chase(D_1, full=False)
 
-                
-                __, D_3, __ = house_bidiag(D_2)
-
+                D_3 = house_bidiag(D_2, full=False)
 
                 __, sing, __  = np.linalg.svd(D_3, full_matrices=False)
                 
-
                 # Summation Algorithm
                 eigen = np.diag(sing) @ sing
                 # print("==================")
@@ -92,7 +87,6 @@ def Algorithm_3(A, k):
         J.append(j_t)
         I.sort()
         J.sort()
-        
         
         # print("B[i_t][j_t] = ", B[i_t][j_t])
         B = B - 1/B[i_t][j_t] * np.outer(B[:, j_t], B[i_t, :])

@@ -7,8 +7,10 @@ import os
 os.getcwd()
 
 from func.Givens_Rotation import formrot, Givens_left, Givens_right
+from func.Rotator import Rotator
 
 # Input:
+#   Флаг full  -- нужно ли возвращать Rotator, который преобразует D
 #   D -- квадратная матрица размеров n x n со структурой:
         
         # 1. В первой строке есть ненулевые элементы
@@ -17,17 +19,18 @@ from func.Givens_Rotation import formrot, Givens_left, Givens_right
         
         #       * * * * * *
         #       0 * * 0 0 0 
-        #       0 0 * * 0 0
+        #  D =  0 0 * * 0 0
         #       0 0 0 * * 0
         #       0 0 0 0 * *
         #       0 0 0 0 0 *   
 
-# Output: Q, B, W
+ # Output: Q, B, W      --- если full = True
+ #            B         --- если full = False
 #  Тридиагональная матица B размеров n x n вида:
     
                             #      * * * 0 0 
                             #      0 * * * 0
-                            #      0 0 * * *
+                            # B =  0 0 * * *
                             #      0 0 0 * *
                             #      0 0 0 0 *
     # Две ортогональные матрицы Q, W размеров n x n, которые
@@ -35,7 +38,7 @@ from func.Givens_Rotation import formrot, Givens_left, Givens_right
         
     #     Q * D * W = B
 
-def Tridiagonal_chase(A):
+def Tridiagonal_chase(A, full=False):
     n = A.shape[0]
     m = A.shape[1]
     if(n != m or  n <= 4):
@@ -45,11 +48,15 @@ def Tridiagonal_chase(A):
     b = np.diag(A).copy()
     g = np.diag(A, 1).copy()
     
-    Q = np.eye(n)
-    W = np.eye(n)
+    
     p = np.zeros(n - 2)
     q = np.zeros(n - 3)
     xi = np.zeros(n - 1)
+    
+    if full:
+        Giv = Rotator()
+        #Q = np.eye(n)
+        #W = np.eye(n)
     
     # прямой ход:
     for i in range(n - 2, 1, -1):
@@ -57,7 +64,9 @@ def Tridiagonal_chase(A):
             continue;
         
         c, s = formrot(z[i], z[i + 1])
-        W = W.dot(Givens_right(c, s, n, i, i + 1))
+        if full:
+            #W = W.dot(Givens_right(c, s, n, i, i + 1))
+            Giv.update_W(c, s, i, i + 1)
         
         temp = z[i + 1]
         z[i + 1] = s * z[i] + c * temp  # === 0
@@ -78,7 +87,9 @@ def Tridiagonal_chase(A):
             # horizontal shift
             if(xi[j - 1] != 0):
                 c, s = formrot(b[j - 1], xi[j - 1])
-                Q = Givens_left(c, s, n, j - 1, j).dot(Q)
+                if full:
+                    #Q = Givens_left(c, s, n, j - 1, j).dot(Q)
+                    Giv.update_Q(c, s, j - 1, j)
                 
                 temp = b[j - 1]
                 b[j - 1]  = c * temp - s * xi[j - 1]
@@ -107,7 +118,9 @@ def Tridiagonal_chase(A):
             
             if(q[j + 1 - 3] != 0):
                 c, s = formrot(p[j - 2], q[j + 1 - 3])
-                W = W.dot(Givens_right(c, s, n, j, j + 1))
+                if full:
+                    #W = W.dot(Givens_right(c, s, n, j, j + 1))
+                    Giv.update_W(c, s, j, j + 1)
                 
                 temp = p[j - 2]
                 p[j - 2] = c * temp - s * q[j + 1 - 3]
@@ -127,4 +140,7 @@ def Tridiagonal_chase(A):
     B = np.diag(b) + np.diag(g, 1) + np.diag(p, 2) + \
         np.diag(q, 3) + np.diag(xi, -1)
     B[0,:] = z
-    return Q, B, W
+    if full:
+        return B, Giv    # Q, B , W, Giv
+    else:
+        return B

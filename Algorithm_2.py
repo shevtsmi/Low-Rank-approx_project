@@ -22,9 +22,11 @@ def GetColumnSubset(A, k):
     i_t = -1
     #print("M, n = ", m, n)
     for t in range(k):
+        print("iteration #{}".format(t))
         U, sig, til = np.linalg.svd(B, full_matrices = False)
         minRatio = math.inf
         for i in range(n):
+            #print("side cycle #{}".format(i))
             b = []
 
             for l in range(m):
@@ -32,17 +34,16 @@ def GetColumnSubset(A, k):
             if np.linalg.norm(b) == 0:
                 continue
             q = U.T @ b / np.linalg.norm(b)
-            Q, W = Bulge_chasing_lower(sig, q, len(sig))
-            temp = Q
-            Q = W.T
-            W = temp.T
+            print("side cycle before #{}/{}; {}/{}".format(i, n, t, k))
+            Giv = Bulge_chasing_lower(sig, q, len(sig))
             
-            
-            D = Q @ np.diag(sig) @ W
-            e1 = Q @ q
-            
+            D = Giv.apply_T(np.diag(sig))
+            #print("side cycle after #{}".format(i))
+
+            e1 = np.zeros(len(sig))
+            e1[0] = 1
+
             til, sing, til1  = np.linalg.svd((np.eye(len(e1)) - e1 @ e1.T)@D)
-            
             
             eigen = np.diag(sing) @ sing
             #print(eigen)

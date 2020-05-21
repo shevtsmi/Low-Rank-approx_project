@@ -37,9 +37,10 @@ def full_house(n, col, v, beta):
 
 
 
-# Input : произвольная квадратная матрица A (n x n) 
+# Input : произвольная квадратная матрица A (n x n) , флаг full
 
-# Output: U, B, Vt
+ # Output: U, B, Vt   --- если full = True
+ #             B      --- если full = False
      # U, Vt -- ортогональные квадратные матрицы размера (n x n)
      # B     -- верхняя треугольная матрица (n x n) вида:
          
@@ -51,25 +52,32 @@ def full_house(n, col, v, beta):
      #     0 0 0 0 0 *
  
     # Так, что выполнено равенство: U * A * V_t = B
+    
 
-def house_bidiag(A):
+def house_bidiag(A, full=False):
     m = A.shape[0]
     n = A.shape[1]
     assert m >= n
-    U,Vt = np.eye(m), np.eye(n)
+    if full:
+        U,Vt = np.eye(m), np.eye(n)
     
     for col in range(n):
         v, beta = make_house_vec(A[col:,col])
         A[col:,col:] = (np.eye(m-col) - beta * np.outer(v,v)).dot(A[col:,col:])
-        Q = full_house(m, col, v, beta)
-        U = U.dot(Q)
+        if full:
+            Q = full_house(m, col, v, beta)
+            U = U.dot(Q)
         
         if col <= n-2:
-            v,beta = make_house_vec(A[col,col+1:].T)
-            A[col:,col+1:] = A[col:, col+1:].dot(np.eye(n-(col+1)) - beta * np.outer(v,v))
-            P = full_house(n, col+1, v, beta)
-            Vt = P.dot(Vt)
-    return U, A, Vt
+            v,beta = make_house_vec(A[col,col + 1:].T)
+            A[col:,col + 1:] = A[col:, col + 1:].dot(np.eye(n - (col + 1)) - beta * np.outer(v,v))
+            if full:
+                P = full_house(n, col+1, v, beta)
+                Vt = P.dot(Vt)
+    if full:
+        return U, A, Vt
+    else:
+        return A
 
 
 

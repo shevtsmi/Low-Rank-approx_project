@@ -6,9 +6,12 @@
 import numpy as np
 import math
 import pandas
-import os
-os.getcwd()
+import os,sys,inspect
 
+
+currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
+parentdir = os.path.dirname(currentdir)
+sys.path.insert(0,parentdir) 
 from func.Bulge_chasing_lower import Bulge_chasing_lower
 from func.Bulge_chasing_upper import Bulge_chasing_upper
 
@@ -36,15 +39,34 @@ for i in range(n):
 
 Sigma = np.diag(s)
 
-Q, W = Bulge_chasing_lower(s, x, n)
 
-print(pandas.DataFrame(Sigma))
-print("=================")
-print(pandas.DataFrame(Q.dot(Sigma.dot(W)))   )     # смотрим на вывод, убеждаемся, что верхняя треугольная
-print("\n")
-print("Exact norm(z) = {} \n".format(np.linalg.norm(x)))     # это настоящая норма вектора x
+Giv = Bulge_chasing_lower(s, x, n)
 
-W_T = W.T
-print("Computed:", np.linalg.norm(W_T.dot(x)))               # это || z || * e_1
+# print(pandas.DataFrame(Sigma))
+# print("=================")
+# print(pandas.DataFrame(Q.dot(Sigma.dot(W)))   )     # смотрим на вывод, убеждаемся, что верхняя треугольная
+# print("\n")
+# print("Exact norm(z) = {} \n".format(np.linalg.norm(x)))     # это настоящая норма вектора x
 
-# как видим они равны, алгоритм работает верно (можно увеличить n, но вывод будет труднее читаем)
+# W_T = W.T
+# print("Computed:", np.linalg.norm(W_T.dot(x)))               # это || z || * e_1
+
+#как видим они равны, алгоритм работает верно (можно увеличить n, но вывод будет труднее читаем)
+
+print(pandas.DataFrame(Giv.apply(Sigma)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
