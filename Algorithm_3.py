@@ -73,7 +73,7 @@ def Algorithm_3(A, k):
                     r = up/down
                 
                 
-                if(r < minRatio and (i not in I) and (j not in J) and B[i][j] != 0):
+                if(r < minRatio and B[i][j] != 0 and i not in I and j not in J):
                     
                     # print("================")
                     # print("t = ", t)
@@ -89,7 +89,8 @@ def Algorithm_3(A, k):
         J.sort()
         
         # print("B[i_t][j_t] = ", B[i_t][j_t])
-        B = B - 1/B[i_t][j_t] * np.outer(B[:, j_t], B[i_t, :])
+        if B[i_t][j_t] !=0:
+            B = B - 1/B[i_t][j_t] * np.outer(B[:, j_t], B[i_t, :])
     
     C  = Select_Columns(A, J)
     R  = Select_Rows(A, I)
